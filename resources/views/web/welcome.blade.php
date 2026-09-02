@@ -1,0 +1,34 @@
+@extends('layouts.app')
+
+@section('content')
+@include('partials.news-rotator')
+<div class="row">    
+    <div class="col-12">
+        <h1>Welcome To The Peterborough Fish and Game Association</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <p>
+            The clubhouse is situated on 100 acres of property.
+            Our facilities include a clubhouse with an indoor heated range, canteen, lounge, washrooms,
+            several outdoor ranges for handguns, rifles, archery.
+            The facilities are open 24 hours a day for club members.
+            Out of consideration of our neighbours, the outdoor ranges shouldn't be used after dusk and the indoor ranges after 9 p.m. on weeknights and 9 p.m. on weekends or before noon on Sundays.
+        </p>
+        <p> Check out the <a href="schedule">Schedule</a> page for usage of the Indoor range and the <a href="calendar">Calendar</a> for events happening at the club</p>
+
+        <p> We have the following activities or sections - <a href="archery">Archery</a>, <a href="handgun">Handguns</a>, <a href="smallbore">Competitive Rifle</a>, <a href="rifles">Rifles</a> and <a href="action">Action Shooting</a></p>
+
+        <p> Our <a href="junior">Junior program</a> is second to none and has had Canadian and Ontario champions in air pistol, air rifle and sporting rifle. </p>
+
+        <p>
+            The club also has a very active Action Shooting section with monthly competitions all year round
+            They are outdoors during the nice weather then they move indoors for the winter.
+        </p>
+
+        <p> The archery section is very active all year round (both indoors and outdoors with a 3-D walkabout range of over 20 targets. They have hosted many Canadian and Ontario events in conjunction with Archery Ontario.</p>
+        <p> We don't run the Hunter Safety and Canadian Firearms Course (PAL) courses ourselves but you can find instructors by following this <a href="https://www.ohep.net/#InstSearch" target="_blank">link</a></p>
+    </div>
+</div>
+@endsection

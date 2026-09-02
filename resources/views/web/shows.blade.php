@@ -1,0 +1,125 @@
+@extends('layouts.app')
+
+@section('content')
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>Shows and Auctions</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <select id="monthInput">
+                    <option value="-1">Show All</option>
+                    <option value='0'>Monthly</option>
+                    <option value='1'>January</option>
+                    <option value='2'>February</option>
+                    <option value='3'>March</option>
+                    <option value='4'>April</option>
+                    <option value='5'>May</option>
+                    <option value='6'>June</option>
+                    <option value='7'>July</option>
+                    <option value='8'>August</option>
+                    <option value='9'>September</option>
+                    <option value='10'>October</option>
+                    <option value='11'>November</option>
+                    <option value='12'>December</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <table class="table pfgaTable" id="eventGrid">
+                    <thead>
+                        <tr>
+                            <th width="20%" align="left" valign="top" scope="col" id="thDate">Date</th>
+                            <th width="40%" align="left" valign="top" scope="col" id="thDescription">Description</th>
+                            <th width="40%" align="left" valign="top" scope="col" id="thLocation">Location</th>
+                        </tr>
+                        <tr>
+                            <th align="left" colspan="3" scope="col" id="thDirections">Details / Directions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"  integrity="sha512-QoJS4DOhdmG8kbbHkxmB/rtPdN62cGWXAdAFWWJPvUFF1/zxcPSdAnn4HhYZSIlVoLVEJ0LesfNlusgm2bPfnA=="  crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+        $.ajax({
+            type: "GET",
+            url: "{{ asset('shows.xml') }}",
+            dataType: "xml",
+            success: parseXml
+        });
+
+        function parseXml(xml) {
+            var altRow = 0;
+            var rowTag;
+            var formattedMonth;
+
+            $(xml).find("show").each(function () {
+
+                //find each instance of header in xml file
+                var description = $(this).find("description").text();
+
+                //if blank hide row
+                if (description == "") {
+                    $("#eventGrid tbody tr").hide();
+                } else {
+                    rowTag = "<tr name='Main_" + $(this).find("month").text() + '_' + $(this).attr("id") + "' >";                        
+        
+                    formattedMonth = moment($(this).find("month").text(), 'MM').format('MMMM');
+                    
+                    $("#eventGrid tbody").append(rowTag
+                    + "<td headers='thDate' width='80px'>" + formattedMonth + ' ' + $(this).find("date").text() + "</td>"
+                    + "<td headers='thDescription'>" + $(this).find("description").text() + "</td>"
+                    + "<td headers='thLocation'>" + $(this).find("location").text() + "</td>"
+                    + "</tr>"
+                    + rowTag
+                    + "<td headers='thDirections' colspan='4'>" + $(this).find("detail").text()
+                    + "<br />"
+                    + "<a href='directions.htm?id=" + $(this).attr("id") + "' class='direction'>Click for directions</a>"
+                    + "</td>"
+                    + "</tr>"
+                 );
+                }
+            });
+
+           showMonth(-1);
+
+            $('#monthInput').change(function () {
+                showMonth($('#monthInput option:selected').val());
+            });
+        }
+
+        function showMonth(selMonth) {
+            var nYear;
+            var nMonth;
+            var d = new Date();
+
+            $("#eventGrid tbody tr").removeClass("alt");
+            
+            if (selMonth == -1)
+            {
+                $("#eventGrid tbody tr").show();
+            }
+            else
+            {
+                $("#eventGrid tbody").find('tr').hide();
+                $("#eventGrid tbody").find('tr[name^="Main_' + selMonth + '_"]').show();
+            }
+            
+            $('#eventGrid tbody tr:visible').each(function (i) {
+                if ((i + 1) % 4 === 0) {
+                    $(this).addClass('alt');
+                    $(this).prev().addClass('alt');
+                }
+            })
+        }
+    });
+    </script>   
+@endsection
