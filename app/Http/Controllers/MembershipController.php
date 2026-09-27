@@ -53,7 +53,7 @@ class MembershipController extends Controller
         if (!empty($uuids)) {
             foreach($uuids as $uuid) {
                 Applicant::findorfail($uuid)->update(['canceled_at' => now()]);
-            }     
+            }
         }
 
         // There is some to do with Stripe, but for now just return the canceled view
@@ -114,7 +114,7 @@ class MembershipController extends Controller
             $enc_key = (string) config('app.record_encryption_key');
 
             foreach ($uuids as $u) {
-                Applicant::where('uuid', $u)->update(['transaction_id' => $sessionId]);
+                Applicant::where('uuid', $u)->update(['transactionId' => $sessionId]);
             }
 
             // STEP 1: Retrieve and decrypt all records
@@ -125,7 +125,7 @@ class MembershipController extends Controller
                         error_log('ENCRYPTION_KEY not set; cannot decrypt for uuid ' . $u);
                         continue;
                     }
-                    
+
                     $plain = decrypt_record($res->data, $enc_key);
                     if ($plain === false) {
                         error_log('Failed to decrypt record for uuid ' . $u);
@@ -150,7 +150,7 @@ class MembershipController extends Controller
                     error_log('No DB record found for uuid ' . $u);
                 }
             }
-            
+
             // STEP 2: Build batch email from all collected records
             if (!empty($collectedRecords)) {
                 $batchBodyHTML = '';
@@ -197,35 +197,35 @@ class MembershipController extends Controller
                         break;
                     default:
                         $feeType = 'General Membership';
-                    }            
+                    }
 
                     $firstName = $plain['firstname'];
                     $lastName = $plain['lastname'];
 
                     if(!$isUpdate){
                         $dob = $plain['dob'];
-                        $address = $plain['address'].', '.$plain['city'].', '.$plain['province'].', '.$plain['postal']; 
+                        $address = $plain['address'].', '.$plain['city'].', '.$plain['province'].', '.$plain['postal'];
                         $email = $plain['email'];
                         $disciplines = implode(',', $plain['disciplines']);
                     }
                     $extraCards = $plain['extra'];
 
                     $bodyHTML = "<strong>$appType $feeType</strong><br />";
-                    $bodyHTML .= (strlen($plain['pfgaNumber']) > 0) ? '<strong>Card #</strong>: '.$plain['pfgaNumber'].'<br />' : '';   
+                    $bodyHTML .= (strlen($plain['pfgaNumber']) > 0) ? '<strong>Card #</strong>: '.$plain['pfgaNumber'].'<br />' : '';
                     $bodyHTML .= "<strong>First Name</strong>: $firstName<br />";
-                    $bodyHTML .= "<strong>Last Name</strong>: $lastName<br />"; 
+                    $bodyHTML .= "<strong>Last Name</strong>: $lastName<br />";
                     if(!$isUpdate){
                         $bodyHTML .= (strlen($plain['alias']) > 0) ? '<strong>Preferred Name</strong>: '.$plain['alias'].'<br />' : '';
-                        $bodyHTML .= "<strong>Date of Birth</strong>: $dob<br />";  
-                        $bodyHTML .= "<strong>Address</strong>: $address<br />";  
-                        $bodyHTML .= (strlen($plain['homephone']) > 0) ? '<strong>Home Phone</strong>: '.$plain['homephone'].'<br />':'';  
+                        $bodyHTML .= "<strong>Date of Birth</strong>: $dob<br />";
+                        $bodyHTML .= "<strong>Address</strong>: $address<br />";
+                        $bodyHTML .= (strlen($plain['homephone']) > 0) ? '<strong>Home Phone</strong>: '.$plain['homephone'].'<br />':'';
                         $bodyHTML .= (strlen($plain['cellphone']) > 0) ? '<strong>Cell Phone</strong>: '.$plain['cellphone'].'<br />':'';
                         $bodyHTML .= "<strong>Email</strong>: $email<br />";
-                        $bodyHTML .= ($plain['palType']=='noPal') ? 'None<br />' : "<strong>PAL</strong>: ".$plain['palNum'].' expires: '.$plain['palExpiry'].'<br />' ;  
-                        $bodyHTML .= (strlen($plain['palDate'])>0) ? '<strong>Approx PAL Date</strong>: '.$plain['palDate'].'<br />' :''; 
+                        $bodyHTML .= ($plain['palType']=='noPal') ? 'None<br />' : "<strong>PAL</strong>: ".$plain['palNum'].' expires: '.$plain['palExpiry'].'<br />' ;
+                        $bodyHTML .= (strlen($plain['palDate'])>0) ? '<strong>Approx PAL Date</strong>: '.$plain['palDate'].'<br />' :'';
                         $bodyHTML .= "<strong>Disciplines</strong>: $disciplines<br />";
                     }
-                    $bodyHTML .= "<strong>Extra Cards Ordered</strong>: $extraCards<br />";  
+                    $bodyHTML .= "<strong>Extra Cards Ordered</strong>: $extraCards<br />";
                     if ($plain['family'] > 0) {
                         $bodyHTML .= '<p><strong>Family Members</strong><br/>';
                         foreach ($plain['family'] as $f) {
@@ -237,7 +237,7 @@ class MembershipController extends Controller
                         if(isset($plain['clubs']) && is_array($plain['clubs'])){
                             $bodyHTML .= '<p><strong>Club Affiliations</strong><br />';
                             foreach ( $plain['clubs'] as $c) {
-                            $bodyHTML .= $c['name'].', '.$c['city'].', '.$c['from'].' -'. $c['to'].'<br />';                
+                            $bodyHTML .= $c['name'].', '.$c['city'].', '.$c['from'].' -'. $c['to'].'<br />';
                             };
                             $bodyHTML .= "</p>";
                         };
@@ -251,21 +251,21 @@ class MembershipController extends Controller
                     }
 
                     $bodyText = "$appType $feeType\n";
-                    $bodyText .= (strlen($plain['pfgaNumber']) > 0) ? 'Card #: '.$plain['pfgaNumber'].'\n' : '';   
+                    $bodyText .= (strlen($plain['pfgaNumber']) > 0) ? 'Card #: '.$plain['pfgaNumber'].'\n' : '';
                     $bodyText .= "First Name: $firstName\n";
-                    $bodyText .= "Last Name: $lastName\n"; 
+                    $bodyText .= "Last Name: $lastName\n";
                     if($appType != 'Update'){
                         $bodyText .= (strlen($plain['alias']) > 0) ? 'Preferred Name: '.$plain['alias'].'\n' : '';
-                        $bodyText .= "Date of Birth: $dob\n";  
-                        $bodyText .= "Address: $address\n";  
-                        $bodyText .= (strlen($plain['homephone']) > 0) ? 'Home Phone: '.$plain['homephone'].'\n':'';  
+                        $bodyText .= "Date of Birth: $dob\n";
+                        $bodyText .= "Address: $address\n";
+                        $bodyText .= (strlen($plain['homephone']) > 0) ? 'Home Phone: '.$plain['homephone'].'\n':'';
                         $bodyText .= (strlen($plain['cellphone']) > 0) ? 'Cell Phone: '.$plain['cellphone'].'\n':'';
                         $bodyText .= "Email: $email\n";
-                        $bodyText .= ($plain['palType']=='noPal') ? 'None' : "PAL: ".$plain['palNum'].' Expires: '.$plain['palExpiry']."\n";  
-                        $bodyText .= (strlen($plain['palDate'])>0) ? 'Approx PAL Date: '.$plain['palDate']."\n" :''; 
+                        $bodyText .= ($plain['palType']=='noPal') ? 'None' : "PAL: ".$plain['palNum'].' Expires: '.$plain['palExpiry']."\n";
+                        $bodyText .= (strlen($plain['palDate'])>0) ? 'Approx PAL Date: '.$plain['palDate']."\n" :'';
                         $bodyText .= "Disciplines: $disciplines\n";
                     }
-                    $bodyText .= "Extra Cards Ordered: $extraCards\n";  
+                    $bodyText .= "Extra Cards Ordered: $extraCards\n";
                     if ($plain['family'] > 0) {
                         $bodyText .= 'Family Members\n';
                         foreach ($plain['family'] as $f) {
@@ -277,7 +277,7 @@ class MembershipController extends Controller
                         if(isset($plain['clubs']) && is_array($plain['clubs'])){
                             $bodyText .= 'Club Affiliations\n';
                             foreach ( $plain['clubs'] as $c) {
-                            $bodyText .= $c['name'].', '.$c['city'].', '.$c['from'].' -'. $c['to'].'\n';                 
+                            $bodyText .= $c['name'].', '.$c['city'].', '.$c['from'].' -'. $c['to'].'\n';
                             };
                         };
                         if(isset($plain['courses']) && is_array($plain['courses'])){
@@ -286,8 +286,8 @@ class MembershipController extends Controller
                             $bodyText .= $c['desc'].', '.$c['location'].', '.$c['trainer'].', '. $c['date'].'\n';
                             };
                         };
-                    }       
-                    
+                    }
+
                     if (isset($plain['photo']['data']) && strlen($plain['photo']['data']) > 0) {
                         error_log($plain['photo']['name']);
                         error_log($plain['photo']['data']);
@@ -387,8 +387,8 @@ class MembershipController extends Controller
 
                 // STEP 3: Send single batch email with all applicants
                 $customer = $checkout_session['customer_details'];
-                $ccEmail = $customer['email'];               
-                      
+                $ccEmail = $customer['email'];
+
                 $appCountStr = count($collectedRecords) === 1 ? 'Applicant' : 'Applicants (' . count($collectedRecords) . ')';
                 $subject = "PFGA $appCountStr from Stripe";
                 $htmlBody = "<html><body><p>Hello Membership Secretary,</p><p>The following $appCountStr submitted via Stripe:</p>" . $batchBodyHTML . "<p>Thanks,<br />The PFGA Stripe Application</p></body></html>";
@@ -415,7 +415,7 @@ class MembershipController extends Controller
                     });
 
                     $emailSuccess[] = 'Batch email sent for ' . count($collectedRecords) . ' applicant(s)';
-                    
+
                     $transactionId = $checkout_session['payment_intent'];
 
                     // Mark all records as emailed in DB
@@ -425,7 +425,7 @@ class MembershipController extends Controller
                                 ->update(['emailed' => true, 'emailed_at' => now(), 'transaction_id' => $transactionId]);
                         } catch (Throwable $e) {
                             error_log('Failed to update emailed status for uuid ' . $uuid . ': ' . $e->getMessage());
-                        }                        
+                        }
                     }
                 } catch (Throwable $e) {
                     Log::error('Failed to send batch email: ' . $e->getMessage());
@@ -456,7 +456,7 @@ class MembershipController extends Controller
         // Helper function to build items for an applicant
         function buildItemsForApplicant($applicationType, $membershipFee, $env) {
             $items = [];
-            
+
             switch ($applicationType){
                 case ('new'):
                     $items = [[
@@ -586,7 +586,7 @@ class MembershipController extends Controller
                         'quantity' => 1
                         ];
             }
-            
+
             return $items;
         }
 
@@ -602,9 +602,9 @@ class MembershipController extends Controller
                 // Support two shapes:
                 // 1) array of applicant objects (added via member form addApplicant)
                 // 2) legacy single-object shape { applicant: {...}, members: [...] }
-                $applicants_list = $payload;        
+                $applicants_list = $payload;
             }
-        } 
+        }
 
         // Build items for all applicants and prepare encryption
         $all_items = [];
@@ -615,8 +615,8 @@ class MembershipController extends Controller
         } catch (Throwable $e) {
             Log::error('Error fetching blacklist: ' . $e->getMessage());
             $blacklist = [];
-        }  
-    
+        }
+
         foreach ($applicants_list as $ap) {
             $appObj = is_array($ap) ? $ap : [];
 
@@ -632,7 +632,7 @@ class MembershipController extends Controller
             if(in_array(strtolower($aem), array_map('strtolower', $blacklist))) {
                 Log::warning('Applicant email is blacklisted: ' . $aem);
                 return redirect('canceled')->withErrors(['email' => 'The email address ' . $aem . ' is blacklisted. Please contact support.']);
-            }            
+            }
 
             // Generate UUID for this applicant
             $app_uuid = Str::uuid();
@@ -642,7 +642,7 @@ class MembershipController extends Controller
             $appType = $appObj['applicationType'] ?? 'new';
             $membershipFee = $appObj['membershipFee'] ?? 'general';
             $family = (int)($appObj['familyCount'] ?? 0);
-            $extra = (int)($appObj['extra'] ?? 0);      
+            $extra = (int)($appObj['extra'] ?? 0);
 
             $applicant_items = buildItemsForApplicant($appType, $membershipFee, $_ENV);
 
@@ -676,7 +676,7 @@ class MembershipController extends Controller
             foreach ($applicant_items as $item) {
                 $all_items[] = $item;
             }
-            
+
 
             // Encrypt and store applicant record (now including family array if present)
             if ($enc_key) {
@@ -700,7 +700,7 @@ class MembershipController extends Controller
             $meta['applicant_uuids'] = implode(',', $applicant_uuids);
             $meta['total_applicants'] = count($applicant_uuids);
         }
-    
+
         // Create checkout session with all applicants' items
         $checkout_session = $stripe->checkout->sessions->create([
             'success_url' => $successUrl,
@@ -709,11 +709,11 @@ class MembershipController extends Controller
             'automatic_tax' => ['enabled' => false],
             'line_items' => $all_items,
             'metadata' => $meta
-        ]);    
+        ]);
 
         // Store encrypted applicant records if encryption key is available
         if ($enc_key && !empty($stored_records)) {
-    
+
             foreach ($stored_records as $rec) {
                 Log::info('Storing encrypted applicant record: UUID=' . $rec['uuid'] . ', Type=' . $rec['type']);
                 Applicant::create([
@@ -723,7 +723,7 @@ class MembershipController extends Controller
                     'created_at' => $rec['created_at']
                 ]);
             }
-            
+
         }
         return redirect()->away($checkout_session->url, 303);
     }

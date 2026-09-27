@@ -69,7 +69,7 @@ function setPhotoData(dataUrl, file) {
     $('#photoData').val(dataUrl.replace(/^data:[^;]+;base64,/, ''));
     $('#photoName').val(newFileName);
     $('#photoType').val(file.type);
-    
+
 }
 
 function clearPhotoFields() {
@@ -88,7 +88,7 @@ function handlePhotoChange() {
         return;
     }
     readPhotoFile(file, function (result) {
-        if (!result.ok) {            
+        if (!result.ok) {
             clearPhotoFields();
             $('#photoError').text(result.message);
             return;
@@ -140,11 +140,11 @@ function recalc() {
             case (selectedFee == "junior" && selectedValue == "half"):
                 totalFee = halfJunior;
                 break;
-            default: 
+            default:
                 totalFee = 0;
         }
 
-    
+
 
     let totalFam = parseInt($('#family').val()) * family;
     let totalExtra = parseInt($('#extra').val()) * extraCards;
@@ -190,7 +190,7 @@ function calculateApplicantFee(applicant) {
         case (applicant.membershipFee == "junior" && applicant.applicationType == "half"):
             totalFee = halfJunior;
             break;
-        default: 
+        default:
             totalFee = 0;
     }
 
@@ -358,8 +358,8 @@ function renderApplicants() {
 
 
 $(function(){
-    $('.initiationFee').text(`$${initiation}`);    
-    $('#initiationFee').text(`$${initiation}`); 
+    $('.initiationFee').text(`$${initiation}`);
+    $('#initiationFee').text(`$${initiation}`);
     $('#generalFee').text(`$${general}`);
     $('.generalFee').text(`$${general}`);
     $('.generalHalf').text(`$${halfGeneral} (New Members Only)`);
@@ -378,7 +378,7 @@ $(function(){
         // Set the required property of the other input to false if this input is not empty.
         $inputs.not(this).prop('required', !$(this).val().length);
     });
-    
+
 
     let date = new Date();
     const year = date.getFullYear();
@@ -415,7 +415,7 @@ $(function(){
         let selectedValue = $('[name="palType"]:checked').val();
         let PALNum = $('#PALNum');
         let palExpiry = $('#palExpiry');
-       
+
         switch(selectedValue){
             case "pal":
             case "rpal":
@@ -423,7 +423,7 @@ $(function(){
                     PALNum.attr('required');
                     palExpiry.attr('required');
                     $('label.pal').addClass('required');
-                }        
+                }
                 break;
             case "noPal":
                 PALNum.removeAttr('required');
@@ -445,14 +445,14 @@ $(function(){
                 break;
             case ((selectedValue == "general") && (selectedType == "half")):
                 $('#generalFee').text(`$${halfGeneral}`);
-                $('#seniorFee').text("");                
+                $('#seniorFee').text("");
                 $('#juniorFee').text("");
                 $('#archeryFee').text("");
                 break;
             case ((selectedValue == "senior") && (selectedType == "new")):
             case ((selectedValue == "senior") && (selectedType == "renew")):
                 $('#seniorFee').text(`$${senior}`);
-                $('#generalFee').text("");                
+                $('#generalFee').text("");
                 $('#juniorFee').text("");
                 $('#archeryFee').text("");
                 break;
@@ -465,7 +465,7 @@ $(function(){
             case ((selectedValue == "junior") && (selectedType == "new")):
             case ((selectedValue == "junior") && (selectedType == "renew")):
                 $('#seniorFee').text("");
-                $('#generalFee').text("");                
+                $('#generalFee').text("");
                 $('#juniorFee').text(`$${junior}`);
                 $('#archeryFee').text("");
                 break;
@@ -478,7 +478,7 @@ $(function(){
             case ((selectedValue == "archery") && (selectedType == "half")):
             case ((selectedValue == "archery") && (selectedType == "renew")):
                 $('#seniorFee').text("");
-                $('#generalFee').text("");                
+                $('#generalFee').text("");
                 $('#juniorFee').text("");
                 $('#archeryFee').text(`$${halfGeneral}`);
                 break;
@@ -493,9 +493,9 @@ $(function(){
     $.validator.addMethod("familyTest", function(value, element){
         // Count only filled family name inputs to avoid counting template rows
         const filled = $('.famName').filter(function(){ return $(this).val() && $(this).val().toString().trim() !== ''; }).length;
-        return filled == value;  
+        return filled == value;
     }, "The number of family members does not match the number being paid for");
-    
+
     // Helper to wait for any pending family photo reads to finish
     function waitForFamilyPhotos() {
         return Promise.resolve();
@@ -513,7 +513,7 @@ $(function(){
             alert('Applicant must include first name, last name, and email');
             return;
         }
-        if (!app.photo || !app.photo.data) {
+        if ((!app.photo || !app.photo.data) && app.applicationType !== 'renew') {
             alert('Please upload a valid passport-style photo before adding an applicant.');
             return;
         }
@@ -542,7 +542,7 @@ $(function(){
         try {
             const currentApp = gatherApplicantObject();
             if ((currentApp.firstname && currentApp.firstname.trim() !== '') || (currentApp.lastname && currentApp.lastname.trim() !== '') || (currentApp.email && currentApp.email.trim() !== '')) {
-                if (!currentApp.photo || !currentApp.photo.data) {
+                if ((!currentApp.photo || !currentApp.photo.data) && currentApp.applicationType !== 'renew') {
                     alert('Please upload a valid passport-style photo for the current applicant before submitting.');
                     return;
                 }
@@ -550,7 +550,7 @@ $(function(){
             }
         } catch (e) { console.error('Failed to gather current applicant', e); }
         try { $('#members_json').val(JSON.stringify(applicants)); } catch (e) { console.error('Failed to serialize applicants', e); }
-    
+
         // Use native submit to bypass jQuery Validate
         $('#form')[0].submit();
     });
@@ -585,7 +585,7 @@ $(function(){
     let urlParams = new URLSearchParams(window.location.search);
     let applicationType = window.MEMBERSHIP_APPLICATION_TYPE || urlParams.get('type') || 'new';
     switch (applicationType){
-            case "renew": 
+            case "renew":
                 $('#renewMember').prop("checked", true);
                 break;
             case "new":

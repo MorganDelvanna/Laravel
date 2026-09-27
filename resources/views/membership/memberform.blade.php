@@ -7,8 +7,8 @@
                 <h1>Membership Application</h1>
                 <h2><span id="memberYear">October 1st, 2025 - September 30th, 2026</span></h2>
             </div>
-        </div>        
-        <form id="form" method="post" action="checkout" enctype="multipart/form-data">
+        </div>
+        <form id="form" method="post" action="{{ route('membership.checkout') }}" enctype="multipart/form-data">
             @csrf
             <input type="hidden" id="members_json" name="members_json"  value="">
             <input type="hidden" id="photoData" name="photoData" value="">
@@ -23,13 +23,13 @@
             </div>
             <div class="row mt-1">
                 <div class="col-12 col-md-4">
-                    <input class="form-check-input" type="radio" id="newMember" name="applicationType" value="new" checked> <label class="form-check-label" for="newMember">New Membership (Full Year)</label> 
+                    <input class="form-check-input" type="radio" id="newMember" name="applicationType" value="new" checked> <label class="form-check-label" for="newMember">New Membership (Full Year)</label>
                 </div>
                 <div class="col-12 col-md-4" id="halfColumn">
                    <input class="form-check-input" type="radio" id="halfMember" name="applicationType" value="half"> <label class="form-check-label" for="halfMember">New Membership (Half Year)*<br />April to September</label>
                 </div>
                 <div class="col-12 col-md-4">
-                    <input class="form-check-input" type="radio" id="renewMember" name="applicationType" value="renew"> <label class="form-check-label" for="renewMember">Membership Renewal</label> 
+                    <input class="form-check-input" type="radio" id="renewMember" name="applicationType" value="renew"> <label class="form-check-label" for="renewMember">Membership Renewal</label>
                 </div>
             </div>
             <div class="row">
@@ -37,7 +37,7 @@
                    <span id="halfSpan">Note: Half-Year Applications are for NEW MEMBERS ONLY who join April 1st - Sept 30th.</span>
                 </div>
             </div>
-  
+
             <hr />
 
             <div class="row">
@@ -48,11 +48,11 @@
             <div class="row">
                 <div class="col-12 col-md-2">
                     <label for="firstname" class="form-label title required">First Name</label><br />
-                    <input id="firstname" type="text" class="form-control new" name="firstname" required>
+                    <input id="firstname" type="text" class="form-control " name="firstname" required>
                 </div>
                 <div class="col-12 col-md-2">
                     <label for="lastname" class="form-label title required">Last Name</label><br />
-                    <input id="lastname" type="text" class="form-control new" name="lastname" required>
+                    <input id="lastname" type="text" class="form-control" name="lastname" required>
                 </div>
                 <div class="col-12 col-md-2">
                     <label for="alias" class="form-label title">Preferred Name</label><br />
@@ -95,7 +95,7 @@
                     <input id="cellphone" type="text" class="form-control new phone" name="cellphone" >
                 </div>
                 <div class="col-12 col-md-4">
-                    <label for="email" class="form-label title required new">E-Mail Address</label>
+                    <label for="email" class="form-label title required">E-Mail Address</label>
                     <input type="text" id="email" class="form-control new" name="email" required>
                 </div>
             </div>
@@ -119,7 +119,7 @@
                 <div class="col-12 col-md-2">
                     <label for="palDate" class="form-label title">Approx. Date of PAL Course (MM-YY)</label>
                     <input type="text" id="palDate" class="form-control" name="palDate">
-                </div>                    
+                </div>
                 <div class="col-12 col-md-2">
                     <label for="PALNum" class="form-label title required pal">PAL/RPAL #</label>
                     <input type="text" id="PALNum" class="form-control" name="palNum" required>
@@ -175,7 +175,7 @@
                         </div>
                     </div>
                 </div>
-            </div>            
+            </div>
             <hr class="newOnly" />
             <div class="row mt-2">
                 <div class="col-12 col-md-8">
@@ -185,11 +185,11 @@
 
             <div id="familyApp">
             </div>
-                
+
             <hr />
             <div id="clubsApp" class="newOnly">
             </div>
-                
+
             <hr class="newOnly" />
             <div id="coursesApp" class="newOnly">
             </div>
@@ -197,7 +197,7 @@
             <div class="row mt-2">
                 <div class="col-12">
                     <strong>Membership Fees:</strong> (Please select the appropriate membership options and add the appropriate fees in the membership dues column). Fees are not refundable.
-                </div>                                           
+                </div>
             </div>
             <div class="row">
                 <div class="col-6"><strong>Membership<span class="d-none d-sm-block"> Options</span></strong></div>
@@ -253,7 +253,7 @@
                 <div class="col-6 d-md-none">Extra Swipe Cards</div>
                 <div class="d-none d-sm-block col-md-2"><span class="extraFee"></span></div>
                 <div class="d-none d-sm-block col-md-2"><span class="extraFee"></span></div>
-                <div class="col-2 col-md-2"><input type="number" id="extra" class="form-control" name="extra" value="0"></div>                
+                <div class="col-2 col-md-2"><input type="number" id="extra" class="form-control" name="extra" value="0"></div>
             </div>
             <div class="row">
                 <div class="col-6 col-md-10 align-content-end"><strong>Amount Due:</strong></div>
@@ -262,19 +262,19 @@
             <div class="row mt-2">
                 <div class="col-6 col-md-10 align-content-end"><strong>Grand Total (All Applicants):</strong></div>
                 <div class="col-6 col-md-2"><strong>$<span id="grandTotal">0</span></strong></div>
-            </div>         
+            </div>
             <div class="row mt-2 terms">
                 <div class="col-12">
                     <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
                     <label class="form-check-label ml-1" for="terms">I agree that I have read the all the instructions and I hereby declare that the information provided is true and correct</label>
                 </div>
-            </div>              
+            </div>
             <div class="row mt-2">
                 <div class="col-8 col-md-4">
                     <span id="errors" class="error"></span>
-                    <button type="button" class="btn btn-primary" id="addApplicant">Add Another Applicant</button>                    
+                    <button type="button" class="btn btn-primary" id="addApplicant">Add Another Applicant</button>
                 </div>
-            </div>          
+            </div>
         </form>
         <hr />
         <div class="row mt-2">
