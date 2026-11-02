@@ -11,9 +11,9 @@ return new class extends Migration
         if (!Schema::hasTable('users')) {
             Schema::create('users', function (Blueprint $table) {
                 $table->id();
-                $table->string('username')->unique();
-                $table->string('password');
-                $table->string('role')->default('user');
+                $table->string('UserName')->unique();
+                $table->string('Password');
+                $table->string('Role')->default('user');
                 $table->timestamps();
             });
         }
@@ -49,12 +49,14 @@ return new class extends Migration
                 $table->dateTime('emailed_at')->nullable();
                 $table->dateTime('canceled_at')->nullable();
                 $table->string('transaction_id')->nullable();
+                $table->string('email')->nullable();
+                $table->boolean('processed')->default(false);
             });
         }
         if (!Schema::hasTable('blacklist')) {
             Schema::create('blacklist', function (Blueprint $table) {
                 $table->id();
-                $table->string('email')->unique();
+                $table->string('email', 191)->unique();
             });
         }
     }

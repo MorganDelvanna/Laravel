@@ -9,6 +9,7 @@ use App\Models\Applicant;
 use App\Models\BlackList;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -24,8 +25,6 @@ class MembershipController extends Controller
         $stripe = new \Stripe\StripeClient(config('app.stripe_secret_key'));
         // Retrieve checkout session if provided
         $uuids = [];
-        $errors = [];
-        $updated = [];
 
         if (isset($sessionId) && !empty($sessionId)) {
             try {
@@ -52,11 +51,19 @@ class MembershipController extends Controller
         // If there are UUIDs, update DB
         if (!empty($uuids)) {
             foreach($uuids as $uuid) {
-                Applicant::findorfail($uuid)->update(['canceled_at' => now()]);
+                $applicant = Applicant::where('uuid', $uuid)->firstOrFail();
+                if ($applicant) {
+                    $applicant->update(['canceled_at' => now()]);
+                }
+                else {
+                    error_log('No applicant record found for UUID: ' . $uuid);
+                }
             }
         }
-
-        // There is some to do with Stripe, but for now just return the canceled view
+        else {
+                error_log('No UUIDs: ' . implode(', ', $uuids));
+        }
+        // return the canceled view
         return view('membership.canceled');
     }
 
@@ -95,6 +102,7 @@ class MembershipController extends Controller
         // Initialize output variables
         $collectedBodyHTML = [];
         $collectedRecords = [];
+        $collectedData = [];
         $emailSuccess = [];
         $emailErrors = [];
         $debugRecords = [];
@@ -102,44 +110,31 @@ class MembershipController extends Controller
         $attachmentNames = [];
 
         if (!empty($uuids)) {
-            function decrypt_record($b64, $key) {
-                $raw = base64_decode($b64);
-                if ($raw === false || strlen($raw) < 17) return false;
-                $iv = substr($raw, 0, 16);
-                $cipher = substr($raw, 16);
-                $plain = openssl_decrypt($cipher, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
-                return $plain === false ? false : $plain;
-            }
-
-            $enc_key = (string) config('app.record_encryption_key');
-
             foreach ($uuids as $u) {
-                Applicant::where('uuid', $u)->update(['transactionId' => $sessionId]);
+                Applicant::where('uuid', $u)->update(['transaction_id' => $sessionId]);
             }
 
             // STEP 1: Retrieve and decrypt all records
             foreach ($uuids as $u) {
                 $res = Applicant::where('uuid', $u)->first();
                 if ($res) {
-                    if (!$enc_key) {
-                        error_log('ENCRYPTION_KEY not set; cannot decrypt for uuid ' . $u);
+                    try {
+                        $plain = Crypt::decryptString($res->data);
+                    } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+                        Log::error('Failed to decrypt applicant record for uuid ' . $u, ['exception' => $e]);
                         continue;
                     }
 
-                    $plain = decrypt_record($res->data, $enc_key);
-                    if ($plain === false) {
-                        error_log('Failed to decrypt record for uuid ' . $u);
-                        continue;
-                    }
                     // decrypted payload is JSON; decode to associative array
                     $decoded = json_decode($plain, true);
                     if (!is_array($decoded)) {
-                        error_log('Decrypted record is not valid JSON for uuid ' . $u . ': ' . substr($plain, 0, 200));
+                        Log::error('Decrypted record is not valid JSON for uuid ' . $u);
                         continue;
                     }
 
                     // Store the record for batch processing
                     $collectedRecords[] = $decoded;
+                    $collectedData[] = $res->data;
                     $debugRecords[] = [
                         'firstname' => $decoded['firstname'] ?? '',
                         'lastname' => $decoded['lastname'] ?? '',
@@ -390,7 +385,7 @@ class MembershipController extends Controller
                 $ccEmail = $customer['email'];
 
                 $appCountStr = count($collectedRecords) === 1 ? 'Applicant' : 'Applicants (' . count($collectedRecords) . ')';
-                $subject = "PFGA $appCountStr from Stripe";
+                $subject = "PFGA $appType $appCountStr from Stripe";
                 $htmlBody = "<html><body><p>Hello Membership Secretary,</p><p>The following $appCountStr submitted via Stripe:</p>" . $batchBodyHTML . "<p>Thanks,<br />The PFGA Stripe Application</p></body></html>";
                 $textBody = "Hello Membership Secretary,\n\nThe following $appCountStr submitted via Stripe:\n\n" . $batchBodyText . "\n\nThanks,\nThe PFGA Stripe Application";
 
@@ -421,10 +416,19 @@ class MembershipController extends Controller
                     // Mark all records as emailed in DB
                     foreach ($uuids as $uuid) {
                         try {
-                            Applicant::findorfail($uuid)
-                                ->update(['emailed' => true, 'emailed_at' => now(), 'transaction_id' => $transactionId]);
+                            $applicant = Applicant::where('uuid', $uuid)->firstOrFail();
+                            if ($applicant) {
+                                $applicant->update([
+                                    'emailed' => true,
+                                    'emailed_at' => now(),
+                                    'transaction_id' => $transactionId
+                                ]);
+                            } else {
+                                error_log('No applicant record found for UUID: ' . $uuid);
+                            }
                         } catch (Throwable $e) {
                             error_log('Failed to update emailed status for uuid ' . $uuid . ': ' . $e->getMessage());
+                             Log::error('Failed to update emailed status for uuid ' . $uuid . ': ' . $e->getMessage());
                         }
                     }
                 } catch (Throwable $e) {
@@ -444,14 +448,6 @@ class MembershipController extends Controller
         $successUrl = $domainUrl . '/' . ltrim((string) config('app.success_path'), '/');
         $cancelUrl = $domainUrl . '/' . ltrim((string) config('app.cancel_path'), '/');
         $stripe = new \Stripe\StripeClient(config('app.stripe_secret_key'));
-
-        // Helper function to encrypt records: AES-256-CBC, store iv+ciphertext as base64
-        function encrypt_record($plaintext, $key) {
-            $iv = random_bytes(16);
-            $cipher = openssl_encrypt($plaintext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
-            if ($cipher === false) return false;
-            return base64_encode($iv . $cipher);
-        }
 
         // Helper function to build items for an applicant
         function buildItemsForApplicant($applicationType, $membershipFee, $env) {
@@ -591,7 +587,6 @@ class MembershipController extends Controller
         }
 
         // Process applicants list early
-        $enc_key = config('app.record_encryption_key') ?? null;
         $applicants_list = [];
         $stored_records = [];
         $applicant_uuids = [];
@@ -608,7 +603,6 @@ class MembershipController extends Controller
 
         // Build items for all applicants and prepare encryption
         $all_items = [];
-
         try
         {
             $blacklist = BlackList::all()->pluck('email')->toArray();
@@ -679,19 +673,13 @@ class MembershipController extends Controller
 
 
             // Encrypt and store applicant record (now including family array if present)
-            if ($enc_key) {
-                $app_json = json_encode($appObj);
-                $enc = encrypt_record($app_json, $enc_key);
-                if ($enc !== false) {
-                    $record = [
-                        'uuid' => $app_uuid,
-                        'type' => $appObj['applicationType'] ?? 'new',
-                        'data' => $enc,
-                        'created_at' => date('Y-m-d H:i:s')
-                    ];
-                    $stored_records[] = $record;
-                }
-            }
+            $app_json = json_encode($appObj, JSON_THROW_ON_ERROR);
+            $stored_records[] = [
+                'uuid' => $app_uuid,
+                'type' => $appObj['applicationType'] ?? 'new',
+                'data' => Crypt::encryptString($app_json),
+                'created_at' => date('Y-m-d H:i:s')
+            ];
         }
 
         // Build metadata with only UUIDs
@@ -711,8 +699,8 @@ class MembershipController extends Controller
             'metadata' => $meta
         ]);
 
-        // Store encrypted applicant records if encryption key is available
-        if ($enc_key && !empty($stored_records)) {
+        // Store encrypted applicant records
+        if (!empty($stored_records)) {
 
             foreach ($stored_records as $rec) {
                 Log::info('Storing encrypted applicant record: UUID=' . $rec['uuid'] . ', Type=' . $rec['type']);

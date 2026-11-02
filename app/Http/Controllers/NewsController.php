@@ -24,7 +24,7 @@ class NewsController extends Controller
             // Return an empty JSON array with an HTTP 200 (or 500) status
             return response()->json(['header' => 'Unable to fetch news items'], 500);
         }
-       
+
     }
 
     public function newsList()
@@ -38,6 +38,7 @@ class NewsController extends Controller
 
     public function saveNews(Request $request)
     {
+        // TODO: update the description field with a rich text editor in the future
         $validated = $request->validate([
             'newsID' => ['nullable', 'integer', 'exists:news,id'],
             'publish_date' => ['required', 'date_format:Y-m-d'],
@@ -53,7 +54,7 @@ class NewsController extends Controller
         $newsItem->fill([
             'publish_date' => $validated['publish_date'],
             'header' => $validated['header'],
-            'description' => $validated['description'] ?? null,
+            'description' => $validated['description'] ?? "",
             'archived' => $validated['archived'] ?? false,
         ]);
         $newsItem->save();

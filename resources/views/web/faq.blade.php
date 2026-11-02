@@ -5,8 +5,29 @@
         <div class="row">
             <div class="col-12">
                 <h1>FAQ - Frequently Asked Questions</h1>
+                <p class="text-muted">Last updated: {{ date('F j, Y') }}</p>
             </div>
         </div>
+
+        <!-- Table of Contents -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3>Quick Links</h3>
+                <ul class="list-inline">
+                    <li class="list-inline-item"><a href="#membership">Membership</a></li>
+                    <li class="list-inline-item"><a href="#equipment">Equipment</a></li>
+                    <li class="list-inline-item"><a href="#joining">Joining Process</a></li>
+                    <li class="list-inline-item"><a href="#guests">Guest Policy</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row" id="membership">
+            <div class="col-12">
+                <h3>Membership Information</h3>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-1">Q.</div>
             <div class="col-11">Who is in charge of your Club? </div>
@@ -24,9 +45,8 @@
 
         <div class="row alt">
             <div class="col-1">A.</div>
-            <div class="col-11">We accept members as young as 12 years of age. Of course, there is no upper age limit. Members between the ages of 12 to 17 years must have parental (or  guardian's) consent to join the Club.</div>
+            <div class="col-11">We accept members as young as 12 years of age. Of course, there is no upper age limit. Members between the ages of 12 to 17 years must have parental (or guardian's) consent to join the Club.</div>
         </div>
-
 
         <div class="row">
             <div class="col-1">Q.</div>
@@ -56,6 +76,38 @@
         <div class="row">
             <div class="col-1">A.</div>
             <div class="col-11">It covers the Orientation Walk mandatory for each new member, the use of Club facilities and equipment, accident insurance and Club newsletter.</div>
+        </div>
+
+        <div class="row" id="equipment">
+            <div class="col-12">
+                <h3>Equipment & Range Rules</h3>
+            </div>
+        </div>
+
+        <div class="row alt">
+            <div class="col-1">Q.</div>
+            <div class="col-11">What type of equipment can be used by your Club or allowed on your indoor range?</div>
+        </div>
+
+        <div class="row alt">
+            <div class="col-1">A.</div>
+            <div class="col-11">Handgun shooters using the indoor range must use lead bullets. The calibre of the handgun must not exceed .45. This is to protect the steel backstop from being damaged. High-powered rifles can't be fired indoors. Archery has full use of the indoor range.</div>
+        </div>
+
+        <div class="row">
+            <div class="col-1">Q.</div>
+            <div class="col-11">What type of equipment can be used by your Club or allowed on your outdoor ranges?</div>
+        </div>
+
+        <div class="row">
+            <div class="col-1">A.</div>
+            <div class="col-11">Rifles, shotguns and handguns are allowed on the outdoor ranges. Crossbows and longbows are on the outdoor archery ranges.</div>
+        </div>
+
+        <div class="row" id="joining">
+            <div class="col-12">
+                <h3>Joining Process</h3>
+            </div>
         </div>
 
         <div class="row alt">
@@ -88,6 +140,12 @@
             <div class="col-11">You are welcome to come in to see our facilities at any time that the club is open.</div>
         </div>
 
+        <div class="row" id="guests">
+            <div class="col-12">
+                <h3>Guest Policy</h3>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-1">Q.</div>
             <div class="col-11">My friend is a member of your Club. Can I come and shoot as his/her guest? </div>
@@ -96,26 +154,6 @@
         <div class="row">
             <div class="col-1">A.</div>
             <div class="col-11">Yes. This courtesy is granted to all our members. The member may bring the same guest a maximum of 3 times before the guest must join the club in order to continue shooting.</div>
-        </div>
-
-        <div class="row alt">
-            <div class="col-1">Q.</div>
-            <div class="col-11">What type of equipment can be used by your Club or allowed on your indoor range?</div>
-        </div>
-
-        <div class="row alt">
-            <div class="col-1">A.</div>
-            <div class="col-11">Handgun shooters using the indoor range must use lead bullets. The calibre of the handgun must not exceed .45. This is to protect the steel backstop from being damaged. High-powered rifles can't be fired indoors. Archery has full use of the indoor range.</div>
-        </div>
-
-        <div class="row">
-            <div class="col-1">Q.</div>
-            <div class="col-11">What type of equipment can be used by your Club or allowed on your outdoor ranges?</div>
-        </div>
-
-        <div class="row">
-            <div class="col-1">A.</div>
-            <div class="col-11">Rifles, shotguns and handguns are allowed on the outdoor ranges. Crossbows and longbows are on the outdoor archery ranges.</div>
         </div>
     </div>
 @endsection

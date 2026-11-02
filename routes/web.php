@@ -21,6 +21,7 @@ Route::get('/courses', function () { return view('web.courses'); });
 Route::get('/property', function () { return view('web.property'); });
 Route::get('/sections', function () { return view('web.sections'); });
 Route::get('/contact', function () { return view('web.contact'); });
+Route::get('/directions', function () { return view('web.directions'); });
 
 Route::get('/action', function () { return view('sections.action'); });
 Route::get('/archery', function () { return view('sections.archery'); });
@@ -28,6 +29,7 @@ Route::get('/handgun', function () { return view('sections.handgun'); });
 Route::get('/rifles', function () { return view('sections.rifle'); });
 Route::get('/smallbore', function () { return view('sections.smallbore'); });
 Route::get('/juniors', function () { return view('sections.juniors'); });
+
 
 // include admin routes
 if (file_exists(__DIR__ . '/admin.php')) {

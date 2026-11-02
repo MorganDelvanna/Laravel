@@ -4,31 +4,30 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 
 class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
         User::firstOrCreate(
-            ['username' => 'admin'],
+            ['UserName' => 'admin'],
             [
-                'password' => Hash::make('password'),
-                'role' => 'admin',
+                'Password' => 'password',
+                'Role' => 'admin',
             ]
         );
         User::firstOrCreate(
-            ['username' => 'calendar'],
+            ['UserName' => 'calendar'],
             [
-                'password' => Hash::make('password'),
-                'role' => 'calendar',
+                'Password' => 'password',
+                'Role' => 'calendar',
             ]
         );
         User::firstOrCreate(
-            ['username' => 'news'],
+            ['UserName' => 'news'],
             [
-                'password' => Hash::make('password'),
-                'role' => 'news',
+                'Password' => 'password',
+                'Role' => 'news',
             ]
         );
     }

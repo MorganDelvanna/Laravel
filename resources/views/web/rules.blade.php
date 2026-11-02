@@ -1,7 +1,29 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">        
+    @php
+        $blueBookDisk = \Illuminate\Support\Facades\Storage::disk('public');
+        $blueBookPath = collect($blueBookDisk->files('pdf'))
+            ->filter(fn (string $path): bool => str_starts_with(basename($path), 'PFGA_Bluebook')
+                && strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'pdf')
+            ->sortByDesc(fn (string $path): int => $blueBookDisk->lastModified($path))
+            ->first();
+
+        if ($blueBookPath === null) {
+            throw new \RuntimeException('Unable to find a Blue Book PDF.');
+        }
+
+        $blueBookContents = $blueBookDisk->get($blueBookPath);
+        if (!preg_match('/\/CreationDate\s*\(D:(\d{4})(\d{2})(\d{2})/', $blueBookContents, $blueBookDate)) {
+            throw new \RuntimeException('Unable to read the Blue Book creation date.');
+        }
+
+        $blueBookCreatedAt = \DateTimeImmutable::createFromFormat('!Ymd', $blueBookDate[1] . $blueBookDate[2] . $blueBookDate[3]);
+        if ($blueBookCreatedAt === false) {
+            throw new \RuntimeException('The Blue Book creation date is invalid.');
+        }
+    @endphp
+    <div class="container">
         <div class="row">
             <div class="col-12">
                 <h1>Range Safety Rules</h1>
@@ -10,8 +32,8 @@
         <div class="row">
             <div class="col-12">
                 <h2>
-                    <a href="storage/PFGA_Bluebook_2024_Rev9.pdf" target="_blank">Click Here</a> to download a copy of our Blue Book (uploaded September 25, 2024)
-                </h2>                
+                    <a href="{{ $blueBookDisk->url($blueBookPath) }}" target="_blank">Click Here</a> to download a copy of our Blue Book (uploaded {{ $blueBookCreatedAt->format('F j, Y') }})
+                </h2>
             </div>
         </div>
         <div class="row">
@@ -392,7 +414,7 @@
                         </div>
                         <div id="smallboreRules" class="panel-collapse collapse">
                             <div class="panel-body">
-                                <ol class="altList">                                    
+                                <ol class="altList">
                                     <li>	Firearms owners must install a ‘Breech Plug (aka Clear Barrel Indicator or Chamber Flag) in the breech of every firearm, before removing a firearm(s) from a case.  The Breech Plug must remain in the firearm breech, during transport to and from the firing line, and/or to and from a temporary storage rack on the range, and if traveling between ranges</li>
                                     <li>	Breech Plugs may only be removed, and left out of a firearm, while the shooter is on the firing line and in direct control of their firearm, on a sanctioned range</li>
                                     <li>	Unattended firearms (those not in immediate use, or under direct personal control), must have an inserted breech plug, that is clearly visible, to other shooters and designated Range Officers, at all times</li>
@@ -414,5 +436,5 @@
                 </div>
             </div>
         </div>
-    </div>                                                                                                                                                                                                                                                                                    
-@endsection                                                                   
+    </div>
+@endsection

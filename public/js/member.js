@@ -338,6 +338,7 @@ function gatherApplicantObject() {
 function clearForm() {
     $('#form')[0].reset();
     window.dispatchEvent(new Event('membership-form-reset'));
+    setApplicationType();
     $('#family').val(0);
     clearPhotoFields();
     recalc();
@@ -354,6 +355,25 @@ function renderApplicants() {
     html += '</ul>';
     $('#applicantList').html(html);
     updateGrandTotal();
+}
+
+function setApplicationType(){
+    let urlParams = new URLSearchParams(window.location.search);
+    let applicationType = window.MEMBERSHIP_APPLICATION_TYPE || urlParams.get('type') || 'new';
+    switch (applicationType){
+            case "renew":
+                $('#renewMember').prop("checked", true);
+                break;
+            case "new":
+                $('#newMember').prop("checked", true);
+                break;
+            case "half":
+                $('#halfMember').prop("checked", true);
+                break;
+            default:
+                $('#newMember').prop("checked", true);
+    }
+    applicationTypeChange();
 }
 
 
@@ -378,7 +398,6 @@ $(function(){
         // Set the required property of the other input to false if this input is not empty.
         $inputs.not(this).prop('required', !$(this).val().length);
     });
-
 
     let date = new Date();
     const year = date.getFullYear();
@@ -491,9 +510,7 @@ $(function(){
     recalc();
 
     $.validator.addMethod("familyTest", function(value, element){
-        // Count only filled family name inputs to avoid counting template rows
-        const filled = $('.famName').filter(function(){ return $(this).val() && $(this).val().toString().trim() !== ''; }).length;
-        return filled == value;
+        return $('.familyRow').length == value;
     }, "The number of family members does not match the number being paid for");
 
     // Helper to wait for any pending family photo reads to finish
@@ -506,7 +523,9 @@ $(function(){
     $('#addApplicant').on('click', async function(){
         // Wait for any family photo reads to complete
         await waitForFamilyPhotos();
-        // perform validation for required fields before adding
+        if (!$('#form').valid()) {
+            return;
+        }
         let app = gatherApplicantObject();
         // basic required check
         if (!app.firstname || !app.lastname || !app.email) {
@@ -522,37 +541,33 @@ $(function(){
         clearForm();
     });
 
-    $('#btnSubmit').on("click", async function(){
-        // Ensure any pending family photo reads complete before collecting
-        await waitForFamilyPhotos();
-        recalc();
+    function submitApplicants(form) {
+        const currentApp = gatherApplicantObject();
+        const hasCurrentApplicant = [currentApp.firstname, currentApp.lastname, currentApp.email]
+            .some(value => value && value.trim() !== '');
+        const checkoutApplicants = applicants.slice();
 
-        // If no applicants were explicitly added, we must validate the current form
-        if (applicants.length === 0) {
-            // collect current form as the single applicant and let normal validation (jQuery validate)
-            // proceed by calling the standard submit so plugin can run its checks
-            let app = gatherApplicantObject();
-            applicants.push(app);
-            try { $('#members_json').val(JSON.stringify(applicants)); } catch (e) { console.error('Failed to serialize applicants', e); }
-            $('#form').submit();
-            return;
+        if (hasCurrentApplicant || applicants.length === 0) {
+            if (!$('#form').valid()) {
+                return;
+            }
+            if ((!currentApp.photo || !currentApp.photo.data) && currentApp.applicationType !== 'renew') {
+                alert('Please upload a valid passport-style photo for the current applicant before submitting.');
+                return;
+            }
+            checkoutApplicants.push(currentApp);
         }
 
-        // There are applicants already added — include current form if filled, then submit
-        try {
-            const currentApp = gatherApplicantObject();
-            if ((currentApp.firstname && currentApp.firstname.trim() !== '') || (currentApp.lastname && currentApp.lastname.trim() !== '') || (currentApp.email && currentApp.email.trim() !== '')) {
-                if ((!currentApp.photo || !currentApp.photo.data) && currentApp.applicationType !== 'renew') {
-                    alert('Please upload a valid passport-style photo for the current applicant before submitting.');
-                    return;
-                }
-                applicants.push(currentApp);
-            }
-        } catch (e) { console.error('Failed to gather current applicant', e); }
-        try { $('#members_json').val(JSON.stringify(applicants)); } catch (e) { console.error('Failed to serialize applicants', e); }
+        // Keep the editable applicant out of the saved list, including on retries.
+        $('#members_json').val(JSON.stringify(checkoutApplicants));
+        $('#errors').text('');
+        form.submit();
+    }
 
-        // Use native submit to bypass jQuery Validate
-        $('#form')[0].submit();
+    $('#btnSubmit').on("click", async function(){
+        await waitForFamilyPhotos();
+        recalc();
+        submitApplicants($('#form')[0]);
     });
 
     $('#form').validate({
@@ -563,15 +578,27 @@ $(function(){
             },
             cellphone: {
                 require_from_group: [1, '.phone']
+            },
+            terms: {
+                required: true
             }
         },
         messages: {
             family: "The number of family members does not match the number being paid for",
             homephone: "Home Phone or Cell Phone is required",
-            cellphone: "Home Phone or Cell Phone is required"
+            cellphone: "Home Phone or Cell Phone is required",
+            terms: "You must agree to the terms and conditions"
+        },
+        highlight: function(element) {
+                    $(element).addClass('is-invalid');
+                    $(element).closest('.form-group').addClass('has-error');
+                },
+        unhighlight: function(element) {
+            $(element).removeClass('is-invalid');
+            $(element).closest('.form-group').removeClass('has-error');
         },
         submitHandler: function(form) {
-            form.submit();
+            submitApplicants(form);
         },
         invalidHandler: function(event, validator){
             let errors = validator.numberOfInvalids();
@@ -582,21 +609,6 @@ $(function(){
         errorClass: "error"
     });
 
-    let urlParams = new URLSearchParams(window.location.search);
-    let applicationType = window.MEMBERSHIP_APPLICATION_TYPE || urlParams.get('type') || 'new';
-    switch (applicationType){
-            case "renew":
-                $('#renewMember').prop("checked", true);
-                break;
-            case "new":
-                $('#newMember').prop("checked", true);
-                break;
-            case "half":
-                $('#halfMember').prop("checked", true);
-                break;
-            default:
-                $('#newMember').prop("checked", true);
-    }
-    applicationTypeChange();
+    setApplicationType();
     updateGrandTotal();
 });

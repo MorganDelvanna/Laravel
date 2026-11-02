@@ -65,7 +65,7 @@
                     <div class="row">
                         <div class="col-12">
                             <p>
-                                Scheduled Special <a href="calendar.htm">Events Take Precedence over This Schedule </a>                                
+                                Scheduled Special <a href="calendar">Events Take Precedence over This Schedule </a>
                             </p>
                         </div>
                     </div>

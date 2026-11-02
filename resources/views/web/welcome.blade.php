@@ -2,7 +2,7 @@
 
 @section('content')
 @include('partials.news-rotator')
-<div class="row">    
+<div class="row">
     <div class="col-12">
         <h1>Welcome To The Peterborough Fish and Game Association</h1>
     </div>
@@ -20,7 +20,7 @@
 
         <p> We have the following activities or sections - <a href="archery">Archery</a>, <a href="handgun">Handguns</a>, <a href="smallbore">Competitive Rifle</a>, <a href="rifles">Rifles</a> and <a href="action">Action Shooting</a></p>
 
-        <p> Our <a href="junior">Junior program</a> is second to none and has had Canadian and Ontario champions in air pistol, air rifle and sporting rifle. </p>
+        <p> Our <a href="juniors">Junior program</a> is second to none and has had Canadian and Ontario champions in air pistol, air rifle and sporting rifle. </p>
 
         <p>
             The club also has a very active Action Shooting section with monthly competitions all year round

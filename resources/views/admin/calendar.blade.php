@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<!-- TODO: End time should default to the same day as start time, but at 9:00 PM. -->
     <div class='container'>
         <div class="row">
             <div class="col-12">
@@ -8,7 +9,7 @@
             </div>
         </div>
         <div class="row card hidden" id="eventForm">
-            <div class="col-12">                
+            <div class="col-12">
                 <form  method='post' action="{{ route('calendar.saveEvent') }}" onsubmit="return validate(this);">
                     @csrf
                     <div style="margin-top: 5px;">
@@ -63,14 +64,14 @@
                         @endforelse
                     </tbody>
                 </table>
-            </div>            
-        </div>        
+            </div>
+        </div>
     </div>
 
     <link rel="stylesheet" type="text/css" href="/js/dateTimePicker/jquery.datetimepicker.min.css" />
     <script src="/js/dateTimePicker/jquery.datetimepicker.full.min.js"></script>
     <script type="text/javascript">
-        function editEvent(id, start, end, title, description) {            
+        function editEvent(id, start, end, title, description) {
             $('#eventID').val(id);
             $('#eventStart').val(start || '');
             $('#eventEnd').val(end || '');

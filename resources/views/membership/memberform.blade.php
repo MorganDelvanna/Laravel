@@ -312,7 +312,10 @@
             useEffect(() => {
                 const count = document.getElementById('family');
                 const serialized = document.getElementById('members_json');
-                if (count) count.value = members.length;
+            if (count) {
+                count.value = members.length;
+                count.defaultValue = members.length;
+            }
                 if (serialized) serialized.value = JSON.stringify(members);
                 if (typeof window.recalc === 'function') window.recalc();
             }, [members]);
@@ -345,6 +348,12 @@
                 reader.readAsDataURL(file);
             }
 
+            // Set default dates when adding new family member
+            function addFamilyMember() {
+                const newMember = { firstname: '', lastname: '', pal: '', palExpiry: '', dob: '' };
+                setMembers(current => [...current, newMember]);
+            }
+
             return (
                 <div>
                      {members.map((member, index) => (
@@ -367,7 +376,7 @@
                             </div>
                         </div>
                     ))}
-                    <button type="button" className="btn btn-primary" onClick={() => setMembers(current => [...current, { firstname: '', lastname: '', pal: '', palExpiry: '', dob: '' }])}>Add Family</button>
+                    <button type="button" className="btn btn-primary" onClick={addFamilyMember}>Add Family</button>
                 </div>
             );
         }
@@ -380,7 +389,10 @@
                 return () => window.removeEventListener('membership-form-reset', reset);
             }, []);
 
-            const add = () => setItems(current => [...current, Object.fromEntries(fields.map(field => [field.name, '']))]);
+            const add = () => {
+                const newItem = Object.fromEntries(fields.map(field => [field.name, '']));
+                setItems(current => [...current, newItem]);
+            };
             const update = (index, field, value) => setItems(current => current.map((item, itemIndex) => itemIndex === index ? { ...item, [field]: value } : item));
             const remove = index => setItems(current => current.filter((_, itemIndex) => itemIndex !== index));
             const serialize = item => kind === 'club'
@@ -420,3 +432,4 @@
     </script>
     <script type="text/javascript" src="{{ asset('js/member.js') }}"></script>
 @endsection
+

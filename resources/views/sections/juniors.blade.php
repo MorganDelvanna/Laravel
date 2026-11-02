@@ -28,7 +28,7 @@
                 <p><a href="https://ontariotarget.ca/" target="_blank">ONTarget</a> membership is not mandatory for participants in registered competition, this is the Provincial organization responsible for matches, it's not neccessary to join our program.<br/>
                    <a href="https://sfc-ftc.ca/" target="_blank">Shooting Federation of Canada</a> (SFC) is mandatory, they are the Federal organiztion for registered comptetition, also not necessary to join our program. </p>
 
-                <p>Sign up form can be downloaded <a href="forms/PFGA Juniors.pdf" target="_blank">here</a></p>
+                <p>Sign up form can be downloaded <a href="storage/pdf/PFGA Juniors.pdf" target="_blank">here</a></p>
 
                 <p><a href="/smallbore|pfga:ca?subject=Smallbore inquiry" id="email_one" title="">Bryan McKellar</a> is the director of the Junior Program</a></p>
             </div>
