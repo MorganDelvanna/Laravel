@@ -11,7 +11,7 @@
             <div class="col-12">
                 <p>We host Ontario Handgun Association Safety Officer, Range Officer, and Instructor clinics.</p>
                 <p>All courses listed are done through cssa or ipsc and are subject to the amount of members interested in signing up for that course and will be hosted and organized by pfga based on the amount of willing participants.</p>
-                <p>We do not host Hunter Education Instructor or Canadian Firearms Course Instructor (PAL) however you can find instructors for these courses here: <a href="https://www.ohep.net/#InstSearch">Ontario Hunter Education Program</a></p>
+                <p>We do not host Hunter Education Instructor or Canadian Firearms Course Instructor (PAL) however you can find instructors for these courses here: <a href="https://www.ohep.net/#InstSearch" target="_blank">Ontario Hunter Education Program</a></p>
 
                 <div id="accordion" class="panel-group" ng-controller="LinksController">
                     <div class="panel panel-default">

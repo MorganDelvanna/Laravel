@@ -40,9 +40,9 @@
                                     <div className="padded col-12 col-md-4" key={`${link.URL}-${index}`}>
                                         <a href={link.URL} target="_blank" rel="noreferrer">
                                             {link.Title}
-                                        </a>
-                                        {link.Location && <span>{link.Location}</span>}
-                                        {link.Contact && <span>{link.Contact}</span>}
+                                        </a><br />
+                                        {link.Location && <span>{link.Location}</span>}{link.Location && <br />}
+                                        {link.Contact && <span>{link.Contact}</span>}{link.Contact && <br />}
                                     </div>
                                 ))}
                             </div>

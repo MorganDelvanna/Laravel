@@ -10,16 +10,16 @@
         <div class="row">
             <div class="col-12">
                 <h2>Matches</h2>
-                <p>Every year we run several matches, LSBA matches in the winter once a month from November to March. In the Spring we run our annual Polar Bear match. 
+                <p>Every year we run several matches, LSBA matches in the winter once a month from November to March. In the Spring we run our annual Polar Bear match.
                 In the Summer from May to September we are part of the informal Summer League matches and soon we'll be trying to have a fall outdoor match.
-                   
+
                 </p>
                 <h2>Sporting rifle</h2>
                 <p>
                     Sporting Rifle is the most popular form of Smallbore rifle shooting in Canada. <br />
                     Matches are 60 shots in three sets of 20 prone or three position: prone, standing kneeling with a .22 single shot rifle with iron sights.
                     Activities range from recreational shooting at local clubs, through inter-club leagues, and up to Provincial and Canadian Championships.<br />
-                    The <a href="https://www.sfc-ftc.ca/" target="_blank">Shooting Federation of Canada</a> and <a href="https://ontariotarget.ca/" target="_blank">ONTarget</a> are the organizations that run the matches and keep track of classifications. Rules are here: <a href="forms/2006_SFC_Sporting_Rifle_Rules.pdf" target="_blank">2006 Sporting Rifle Rules</a>
+                    The <a href="https://www.sfc-ftc.ca/" target="_blank">Shooting Federation of Canada</a> and <a href="https://ontariotarget.ca/" target="_blank">ONTarget</a> are the organizations that run the matches and keep track of classifications. Rules are here: <a href="https://www.sfc-ftc.ca/competitions/rules/" target="_blank">2020 Hunting and Sporting Rifle Rules</a>
                 </p>
                 <h2>Match Rifle</h2>
                 <p>
@@ -30,7 +30,7 @@
                 </p>
                 <h2>Hunting Rifle</h2>
                 <p>
-                    Hunting rifle matches are standing or prone and pretty much any .22 rifle is allowed as long as it's not a target rifle. <a href="forms/Hunting_Rifle_Rules.pdf" target="_blank"> Hunting Rifle Rules</a><br />
+                    Hunting rifle matches are standing or prone and pretty much any .22 rifle is allowed as long as it's not a target rifle. <a href="https://www.sfc-ftc.ca/competitions/rules/" target="_blank">Hunting Rifle Rules</a><br />
                 </p>
                 <h2>Air rifle/pistol</h2>
                 <p>
@@ -43,11 +43,11 @@
                     Targets are from smallest to large, chickens, pigs, turkeys and rams. Indoors we shoot at paper targets with four rows of five animals at 20m. Outdoors we shoot at steel targets chickens at 33m, pigs at 50m, turkeys at 75m and rams at 100m<br />
                     The rules for matches comes from <a href="https://competitions.nra.org/documents/pdf/compete/RuleBooks/Sil-r/sil-r-book.pdf" target="_blank">NRA Silhouette Rules</a>
                 </p>
-                
+
                 <h2>Precision Rimfire</h2>
                 <p>
                     Targets are arranged at 25, 50, 75 and 100 yards with target sizes varying from ¼” to 6”. Shooters have to engage them from different positions and may have to switch positions and props during a stage. Currently we're looking at finding someone to run this program.<br />
-                    Precision Rimfire requirements are here: <a href="https://https://rimfireprecision.ca//" target="_blank">Rimfire Precision Series</a>
+                    Precision Rimfire requirements are here: <a href="https://rimfireprecision.ca/" target="_blank">Rimfire Precision Series</a>
                 </p>
             </div>
         </div>

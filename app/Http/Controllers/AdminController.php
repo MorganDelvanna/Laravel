@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Applicant;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Contracts\Encryption\DecryptException;
 use App\Models\BlackList;
+use App\Support\LegacyPassword;
+use App\Models\User;
 
 class AdminController extends Controller
 {
@@ -19,11 +23,13 @@ class AdminController extends Controller
     public function loginPost(Request $request)
     {
         $credentials = $request->only('username', 'password');
+        $user = User::where('UserName', $credentials['username'])->first();
 
-        if (Auth::attempt($credentials)) {
+        if ($user && LegacyPassword::check($credentials['password'], $user->getAuthPassword())) {
+            Auth::login($user);
             $request->session()->regenerate();
 
-            return match (Auth::user()->role) {
+            return match ($user->role) {
                 'admin' => redirect()->route('admin.emailList'),
                 'calendar' => redirect()->route('calendar.admin'),
                 'news' => redirect()->route('news.admin'),
@@ -56,8 +62,35 @@ class AdminController extends Controller
 
     private function decryptRecord(?string $encoded): array
     {
-        $raw = base64_decode($encoded ?? '', true);
+        if ($encoded === null || $encoded === '') {
+            return [];
+        }
+
+        try {
+            return $this->decodeApplicantRecord(Crypt::decryptString($encoded));
+        } catch (DecryptException $exception) {
+            $raw = base64_decode($encoded, true);
+            $payload = $raw === false ? null : json_decode($raw, true);
+
+            if (is_array($payload) && isset($payload['iv'], $payload['value'], $payload['mac'])) {
+                Log::warning('Failed to decrypt applicant record with the Laravel application key.');
+                return [];
+            }
+        }
+
+        return $this->decryptLegacyRecord($encoded);
+    }
+
+    private function decryptLegacyRecord(string $encoded): array
+    {
+        $raw = base64_decode($encoded, true);
         if ($raw === false || strlen($raw) < 17) {
+            return [];
+        }
+
+        $key = (string) config('app.record_encryption_key');
+        if ($key === '') {
+            Log::error('ENCRYPTION_KEY is not set; cannot decrypt a legacy applicant record.');
             return [];
         }
 
@@ -66,17 +99,28 @@ class AdminController extends Controller
         $plaintext = openssl_decrypt(
             $ciphertext,
             'AES-256-CBC',
-            (string) config('app.record_encryption_key'),
+            $key,
             OPENSSL_RAW_DATA,
             $iv
         );
 
         if ($plaintext === false) {
+            Log::warning('Failed to decrypt legacy applicant record.');
             return [];
         }
 
+        return $this->decodeApplicantRecord($plaintext);
+    }
+
+    private function decodeApplicantRecord(string $plaintext): array
+    {
         $payload = json_decode($plaintext, true);
-        return is_array($payload) ? $payload : [];
+        if (!is_array($payload)) {
+            Log::warning('Decrypted applicant record is not valid JSON.');
+            return [];
+        }
+
+        return $payload;
     }
 
 }
