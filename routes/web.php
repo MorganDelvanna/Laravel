@@ -22,7 +22,6 @@ Route::get('/property', function () { return view('web.property'); });
 Route::get('/sections', function () { return view('web.sections'); });
 Route::get('/contact', function () { return view('web.contact'); });
 Route::get('/directions', function () { return view('web.directions'); });
-Route::get('/directions', function () { return view('web.directions'); });
 
 Route::get('/action', function () { return view('sections.action'); });
 Route::get('/archery', function () { return view('sections.archery'); });
