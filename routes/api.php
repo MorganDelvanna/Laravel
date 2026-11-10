@@ -17,6 +17,7 @@ use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::post('/login', [ApiAuthController::class, 'login'])->middleware('throttle:5,1');
 
 // TODO: Add Clean up applicant records
 
