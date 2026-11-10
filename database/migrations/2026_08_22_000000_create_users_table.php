@@ -59,6 +59,16 @@ return new class extends Migration
                 $table->string('email', 191)->unique();
             });
         }
+        if (!Schema::hasTable('paidup')) {
+            Schema::create('paidup', function (Blueprint $table) {
+            $table->integer('Card');
+            $table->integer('YearPaid');
+            $table->timestamps();
+
+            // Add unique constraint to prevent duplicate Card/YearPaid combinations
+            $table->unique(['Card', 'YearPaid']);
+        });
+        }
     }
 
     public function down(): void
@@ -68,5 +78,6 @@ return new class extends Migration
         Schema::dropIfExists('calendar_events');
         Schema::dropIfExists('applicants');
         Schema::dropIfExists('blacklist');
+        Schema::dropIfExists('paidup');
     }
 };

@@ -102,10 +102,6 @@ class MembershipController extends Controller
         // Initialize output variables
         $collectedBodyHTML = [];
         $collectedRecords = [];
-        $collectedData = [];
-        $emailSuccess = [];
-        $emailErrors = [];
-        $debugRecords = [];
         $photoAttachments = [];
         $attachmentNames = [];
 
@@ -134,13 +130,6 @@ class MembershipController extends Controller
 
                     // Store the record for batch processing
                     $collectedRecords[] = $decoded;
-                    $collectedData[] = $res->data;
-                    $debugRecords[] = [
-                        'firstname' => $decoded['firstname'] ?? '',
-                        'lastname' => $decoded['lastname'] ?? '',
-                        'clubs' => isset($decoded['clubs']) && is_array($decoded['clubs']) ? count($decoded['clubs']) : 0,
-                        'courses' => isset($decoded['courses']) && is_array($decoded['courses']) ? count($decoded['courses']) : 0
-                    ];
                 } else {
                     error_log('No DB record found for uuid ' . $u);
                 }

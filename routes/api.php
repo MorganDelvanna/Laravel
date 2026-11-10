@@ -2,9 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\Applicant;
 use App\Http\Controllers\ApiAuthController;
+use App\Http\Controllers\ApiController;
 use Laravel\Sanctum\Http\Middleware\CheckAbilities;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +17,9 @@ use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+// TODO: Add Clean up applicant records
+
 Route::post('/login', [ApiAuthController::class, 'login'])->middleware('throttle:5,1');
 
 Route::middleware('auth:sanctum')->post('/logout', [ApiAuthController::class, 'logout']);
@@ -23,12 +27,9 @@ Route::middleware('auth:sanctum')->post('/logout', [ApiAuthController::class, 'l
 Route::middleware([
     'auth:sanctum',
     CheckAbilities::class . ':applicants:read',
-])->get('/applicants', function (Request $request) {
-    $collectedRecords = [];
-    $res = Applicant::where('processed', 0)->whereNotNull('transaction_id')->get();
-    foreach ($res as $applicant) {
-        $collectedRecords[] = encrypt($applicant);
-    }
+])->get('/applicants', [ApiController::class, 'getApplicants']);
 
-    return response()->json($collectedRecords);
-});
+Route::middleware([
+    'auth:sanctum',
+    CheckAbilities::class . ':applicants:read',
+])->post('/checkup', [ApiController::class, 'checkup']);

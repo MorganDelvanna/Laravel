@@ -30,6 +30,8 @@ Route::get('/rifles', function () { return view('sections.rifle'); });
 Route::get('/smallbore', function () { return view('sections.smallbore'); });
 Route::get('/juniors', function () { return view('sections.juniors'); });
 
+Route::post('/contact', [App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
+
 
 // include admin routes
 if (file_exists(__DIR__ . '/admin.php')) {
