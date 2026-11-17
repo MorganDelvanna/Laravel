@@ -20,6 +20,11 @@ class MembershipController extends Controller
         return view('membership.memberForm', ['applicationType' => $applicationType]);
     }
 
+    public function familyForm()
+    {
+        return view('membership.familyForm');
+    }
+
     public function canceled(Request $request, string $sessionId)
     {
         $stripe = new \Stripe\StripeClient(config('app.stripe_secret_key'));

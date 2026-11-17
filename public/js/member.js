@@ -218,7 +218,8 @@ function updateGrandTotal() {
 }
 
 var applicationTypeChange = function() {
-    let selectedValue = $('input[name="applicationType"]:checked').val();
+    let selectedValue = $('input[name="applicationType"]:checked').val()
+        || window.MEMBERSHIP_APPLICATION_TYPE;
     switch (selectedValue) {
         case "new":
             if (!$('label.new').first().hasClass('required')) {
@@ -268,24 +269,28 @@ let applicants = [];
 function gatherApplicantObject() {
     // collect applicant main fields
     let applicant = {};
-    applicant.applicationType = $('input[name="applicationType"]:checked').val();
-    applicant.membershipFee = $('input[name="membershipFee"]:checked').val();
-    applicant.firstname = $('#firstname').val();
-    applicant.lastname = $('#lastname').val();
-    applicant.alias = $('#alias').val();
-    applicant.dob = $('#dob').val();
-    applicant.pfgaNumber = $('#pfgaNumber').val();
-    applicant.address = $('#address').val();
-    applicant.city = $('#city').val();
-    applicant.province = $('#province').val();
-    applicant.postal = $('#postal').val();
-    applicant.homephone = $('#homephone').val();
-    applicant.cellphone = $('#cellphone').val();
-    applicant.email = $('#email').val();
-    applicant.palType = $('input[name="palType"]:checked').val();
-    applicant.palDate = $('#palDate').val();
-    applicant.palNum = $('#PALNum').val();
-    applicant.palExpiry = $('#palExpiry').val();
+    const urlParams = new URLSearchParams(window.location.search);
+    applicant.applicationType = $('input[name="applicationType"]:checked').val()
+        || window.MEMBERSHIP_APPLICATION_TYPE
+        || urlParams.get('type')
+        || 'new';
+    applicant.membershipFee = $('input[name="membershipFee"]:checked').val() || '';
+    applicant.firstname = $('#firstname').val() || '';
+    applicant.lastname = $('#lastname').val() || '';
+    applicant.alias = $('#alias').val() || '';
+    applicant.dob = $('#dob').val() || '';
+    applicant.pfgaNumber = $('#pfgaNumber').val() || '';
+    applicant.address = $('#address').val() || '';
+    applicant.city = $('#city').val() || '';
+    applicant.province = $('#province').val() || '';
+    applicant.postal = $('#postal').val() || '';
+    applicant.homephone = $('#homephone').val() || '';
+    applicant.cellphone = $('#cellphone').val() || '';
+    applicant.email = $('#email').val() || '';
+    applicant.palType = $('input[name="palType"]:checked').val() || '';
+    applicant.palDate = $('#palDate').val() || '';
+    applicant.palNum = $('#PALNum').val() || '';
+    applicant.palExpiry = $('#palExpiry').val() || '';
     applicant.disciplines = [];
     if($('#archery').is(':checked')) applicant.disciplines.push('archery');
     if($('#rifle').is(':checked')) applicant.disciplines.push('rifle');
@@ -361,6 +366,8 @@ function setApplicationType(){
     let urlParams = new URLSearchParams(window.location.search);
     let applicationType = window.MEMBERSHIP_APPLICATION_TYPE || urlParams.get('type') || 'new';
     switch (applicationType){
+            case "update":
+                break;
             case "renew":
                 $('#renewMember').prop("checked", true);
                 break;
@@ -421,7 +428,7 @@ $(function(){
         $('#halfSpan').hide();
     }
 
-    if (date.getMonth() >= firstTuesdayJuly && date.getMonth() <= 10) {
+    if (date.getMonth() >= 7 && date.getMonth() <= 11) {
         $('#memberYear').text(`October 1st ${date.getFullYear()} - September 30th ${date.getFullYear() + 1}`);
     } else {
         $('#memberYear').text(`October 1st ${date.getFullYear() - 1} - September 30th ${date.getFullYear()}`);
@@ -551,7 +558,7 @@ $(function(){
             if (!$('#form').valid()) {
                 return;
             }
-            if ((!currentApp.photo || !currentApp.photo.data) && currentApp.applicationType !== 'renew') {
+            if ((!currentApp.photo || !currentApp.photo.data) && currentApp.applicationType === 'new') {
                 alert('Please upload a valid passport-style photo for the current applicant before submitting.');
                 return;
             }

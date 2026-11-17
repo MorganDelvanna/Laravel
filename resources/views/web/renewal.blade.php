@@ -33,7 +33,7 @@
 
                 <p>
                     If you are just adding new family members or ordering extra swipe cards you can do so here:
-                    <a href="stripe/familyform/renew">Add Family/Order Cards Membership Form</a>
+                    <a href="/family">Add Family/Order Cards Membership Form</a>
                 </p>
             </div>
         </div>
