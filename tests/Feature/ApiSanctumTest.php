@@ -34,7 +34,7 @@ class ApiSanctumTest extends TestCase
         $this->assertSame('admin', $user->Role);
 
         $token = $user->tokens()->firstOrFail();
-        $this->assertSame(['applicants:read'], $token->abilities);
+        $this->assertSame(['applicants:read', 'users:manage'], $token->abilities);
         $this->assertNotNull($token->expires_at);
 
         $this->withToken($login->json('token'))
@@ -134,6 +134,137 @@ class ApiSanctumTest extends TestCase
         $this->withToken($token)
             ->getJson('/api/applicants')
             ->assertForbidden();
+    }
+
+    public function test_admin_can_mark_applicants_processed_with_numeric_ids(): void
+    {
+        $user = User::create([
+            'UserName' => 'numeric-applicant-admin',
+            'Password' => 'secret-password',
+            'Role' => 'admin',
+        ]);
+        $token = $user->createToken('applicants', ['applicants:read'])->plainTextToken;
+        $applicantIds = [];
+
+        foreach (range(1, 3) as $index) {
+            $applicantIds[] = DB::table('applicants')->insertGetId([
+                'uuid' => (string) \Illuminate\Support\Str::uuid(),
+                'data' => '{}',
+                'created_at' => now(),
+                'processed' => false,
+            ]);
+        }
+
+        $this->withToken($token)
+            ->postJson('/api/applicants', ['ids' => $applicantIds])
+            ->assertOk()
+            ->assertJsonPath('processed_ids', $applicantIds);
+
+        foreach ($applicantIds as $id) {
+            $this->assertDatabaseHas('applicants', [
+                'id' => $id,
+                'processed' => true,
+            ]);
+        }
+    }
+
+    public function test_checkup_accepts_cards_in_the_json_request_object(): void
+    {
+        $user = User::create([
+            'UserName' => 'api-admin',
+            'Password' => 'secret-password',
+            'Role' => 'admin',
+        ]);
+        $token = $user->createToken('checkup', ['applicants:read'])->plainTextToken;
+        $yearPaid = (int) date('Y');
+
+        $this->withToken($token)
+            ->postJson('/api/checkup', [
+                'cards' => [
+                    ['card_number' => 123, 'yearPaid' => $yearPaid],
+                ],
+            ])
+            ->assertOk()
+            ->assertJsonPath('results.0.Card', 123)
+            ->assertJsonPath('results.0.YearPaid', $yearPaid)
+            ->assertJsonPath('results.0.action', 'inserted');
+
+        $this->assertDatabaseHas('paidup', [
+            'Card' => 123,
+            'YearPaid' => $yearPaid,
+        ]);
+    }
+
+    public function test_admin_can_create_users_with_a_selected_role(): void
+    {
+        $admin = User::create([
+            'UserName' => 'api-admin',
+            'Password' => 'secret-password',
+            'Role' => 'admin',
+        ]);
+        $token = $admin->createToken('user-management', ['users:manage'])->plainTextToken;
+
+        $this->withToken($token)
+            ->postJson('/api/users', [
+                'username' => 'calendar-user',
+                'password' => 'new-user-password',
+                'role' => 'calendar',
+            ])
+            ->assertCreated()
+            ->assertJsonPath('user.username', 'calendar-user')
+            ->assertJsonPath('user.role', 'calendar')
+            ->assertJsonMissingPath('user.password');
+
+        $user = User::where('UserName', 'calendar-user')->firstOrFail();
+        $this->assertSame('calendar', $user->role);
+        $this->assertTrue(LegacyPassword::check('new-user-password', $user->getAuthPassword()));
+    }
+
+    public function test_admin_can_reset_a_user_password_and_revoke_their_tokens(): void
+    {
+        $admin = User::create([
+            'UserName' => 'api-admin',
+            'Password' => 'secret-password',
+            'Role' => 'admin',
+        ]);
+        $user = User::create([
+            'UserName' => 'regular-user',
+            'Password' => 'old-password',
+            'Role' => 'user',
+        ]);
+        $adminToken = $admin->createToken('user-management', ['users:manage']);
+        $user->createToken('existing-session', ['applicants:read']);
+        $token = $adminToken->plainTextToken;
+
+        $this->withToken($token)
+            ->putJson('/api/users/' . $user->id . '/password', [
+                'password' => 'replacement-password',
+                'password_confirmation' => 'replacement-password',
+            ])
+            ->assertOk()
+            ->assertJsonPath('message', 'User password updated successfully. The user must log in again.');
+
+        $this->assertTrue(LegacyPassword::check('replacement-password', $user->fresh()->getAuthPassword()));
+        $this->assertDatabaseMissing('personal_access_tokens', ['name' => 'existing-session']);
+    }
+
+    public function test_tokens_without_user_management_ability_cannot_create_users(): void
+    {
+        $admin = User::create([
+            'UserName' => 'api-admin',
+            'Password' => 'secret-password',
+            'Role' => 'admin',
+        ]);
+        $token = $admin->createToken('applicants-only', ['applicants:read'])->plainTextToken;
+
+        $this->withToken($token)
+            ->postJson('/api/users', [
+                'username' => 'blocked-user',
+                'password' => 'new-user-password',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('users', ['UserName' => 'blocked-user']);
     }
 
     public function test_logout_revokes_the_current_token(): void

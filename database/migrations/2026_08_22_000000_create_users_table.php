@@ -11,7 +11,7 @@ return new class extends Migration
         if (!Schema::hasTable('users')) {
             Schema::create('users', function (Blueprint $table) {
                 $table->id();
-                $table->string('UserName')->unique();
+                $table->string('UserName', 191)->unique();
                 $table->string('Password');
                 $table->string('Role')->default('user');
                 $table->timestamps();

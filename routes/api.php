@@ -19,10 +19,6 @@ use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 */
 Route::post('/login', [ApiAuthController::class, 'login'])->middleware('throttle:5,1');
 
-// TODO: Add Clean up applicant records
-
-Route::post('/login', [ApiAuthController::class, 'login'])->middleware('throttle:5,1');
-
 Route::middleware('auth:sanctum')->post('/logout', [ApiAuthController::class, 'logout']);
 
 Route::middleware([
@@ -34,3 +30,19 @@ Route::middleware([
     'auth:sanctum',
     CheckAbilities::class . ':applicants:read',
 ])->post('/checkup', [ApiController::class, 'checkup']);
+
+Route::middleware([
+    'auth:sanctum',
+    CheckAbilities::class . ':applicants:read',
+])->post('/applicants', [ApiController::class, 'setProcessed']);
+/*
+Route::middleware([
+    'auth:sanctum',
+    CheckAbilities::class . ':users:manage',
+])->post('/users', [ApiController::class, 'createUser']);
+
+Route::middleware([
+    'auth:sanctum',
+    CheckAbilities::class . ':users:manage',
+])->put('/users/{user}/password', [ApiController::class, 'updateUserPassword']);
+*/

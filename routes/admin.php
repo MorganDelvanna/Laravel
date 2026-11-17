@@ -16,5 +16,6 @@ Route::middleware(['auth','admin'])->prefix('admin')->group(function() {
         return view('admin.dashboard');
     })->name('admin.dashboard');
     Route::get('/email-list', [AdminController::class, 'emailList'])->name('admin.emailList');
+    Route::post('/email-list/{uuid}/resend', [AdminController::class, 'resendEmail'])->name('admin.emailList.resend');
     // Add more admin routes here
 });

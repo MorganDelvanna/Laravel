@@ -36,7 +36,7 @@ class ApiAuthController extends Controller
 
         $token = $user->createToken(
             'desktop-app',
-            ['applicants:read'],
+            ['applicants:read', 'users:manage'],
             now()->addDays(30)
         );
 

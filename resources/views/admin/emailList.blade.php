@@ -26,6 +26,7 @@
             return applicant;
         }
 
+        const resendUrlTemplate = @json(route('admin.emailList.resend', ['uuid' => '__UUID__']));
         function EmailList() {
             const applicants = initialApplicants || [];
             const [month, setMonth] = useState(() => {
@@ -33,6 +34,22 @@
                 const date = latest ? new Date(latest) : new Date();
                 return new Date(date.getFullYear(), date.getMonth(), 1);
             });
+            const [sending, setSending] = useState(null);
+            const [notice, setNotice] = useState('');
+            const resend = async uuid => {
+                setSending(uuid);
+                setNotice('');
+                try {
+                    const response = await fetch(resendUrlTemplate.replace('__UUID__', encodeURIComponent(uuid)), {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '', 'Accept': 'application/json' }
+                    });
+                    const result = await response.json();
+                    setNotice(result.message || (response.ok ? 'Email resent.' : 'Could not resend email.'));
+                } catch (error) {
+                    setNotice('Could not resend email.');
+                } finally { setSending(null); }
+            };
             const monthApplicants = useMemo(() => applicants.filter(applicant => {
                 const date = new Date(applicant.created_at);
                 return date.getFullYear() === month.getFullYear() && date.getMonth() === month.getMonth();
@@ -47,6 +64,7 @@
                 <div className="sr-root">
                     <div className="sr-main">
                         <h1>Applicants without email records</h1>
+                        {notice && <div className="alert alert-info" role="status">{notice}</div>}
                         <section className="sr-section mt-3">
                             <div className="d-flex justify-content-between align-items-center mb-2">
                                 <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => moveMonth(-1)}>&laquo; {adjacentLabel(-1)}</button>
@@ -65,7 +83,7 @@
                                             <td>{payload.lastname || ''}</td>
                                             <td>{payload.email || ''}</td>
                                             <td>{applicant.transaction_id == null ? 'Not Paid' : 'Paid'}</td>
-                                            <td><button type="button" className="btn btn-sm btn-outline-primary" data-id={applicant.uuid}>Resend Email</button></td>
+                                            <td><button type="button" className="btn btn-sm btn-outline-primary" disabled={sending === applicant.uuid || applicant.transaction_id == null} onClick={() => resend(applicant.uuid)}>{sending === applicant.uuid ? 'Sending…' : 'Resend Email'}</button></td>
                                         </tr>;
                                     })}
                                 </tbody>

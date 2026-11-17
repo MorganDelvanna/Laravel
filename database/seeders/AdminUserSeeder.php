@@ -12,7 +12,7 @@ class AdminUserSeeder extends Seeder
         User::firstOrCreate(
             ['UserName' => 'admin'],
             [
-                'Password' => 'password',
+                'Password' => 'fivNu-iumK-eg.@2s9n!',
                 'Role' => 'admin',
             ]
         );
